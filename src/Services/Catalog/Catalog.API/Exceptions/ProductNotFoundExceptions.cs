@@ -2,7 +2,8 @@
 
 public class ProductNotFoundExceptions : Exception
 {
-    public ProductNotFoundExceptions()
+    public ProductNotFoundExceptions() 
+        : base("Product not found!")
     {
             
     }

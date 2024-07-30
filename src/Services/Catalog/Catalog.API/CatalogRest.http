@@ -14,3 +14,7 @@ Content-Type: application/json
 ### Get Products
 GET https://localhost:5050/products
 Content-Type: application/json
+
+### Get Product By Id
+GET https://localhost:5050/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
+Content-Type: application/json
