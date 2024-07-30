@@ -3,11 +3,11 @@
 POST https://localhost:5050/products
 Content-Type: application/json
 {
-  "Name": "New Product A",
+  "Name": "New Product B",
   "Category": ["c1", "c2"],
-  "Description": "Description Prouct A",
-  "ImageFile": "ImageFile Product A",
-  "Price": 199
+  "Description": "Description Prouct B",
+  "ImageFile": "ImageFile Product B",
+  "Price": 250
 }
 
 
