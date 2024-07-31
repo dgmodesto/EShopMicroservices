@@ -10,11 +10,31 @@ Content-Type: application/json
   "Price": 250
 }
 
-
 ### Get Products
 GET https://localhost:5050/products
 Content-Type: application/json
 
 ### Get Product By Id
 GET https://localhost:5050/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
+Content-Type: application/json
+
+### Get Product By Category
+GET https://localhost:5050/products/category/c1
+Content-Type: application/json
+
+
+### Update Product
+PUT https://localhost:5050/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
+Content-Type: application/json
+ {
+    "id": "0190ffe5-684c-4f35-9d6b-3c14cc34126d",
+    "name": "New Product A",
+    "category": ["c3"],
+    "description": "Description Prouct A",
+    "imageFile": "ImageFile Product A",
+    "price": 199
+  }
+
+### Delete Product
+DELETE https://localhost:5050/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
 Content-Type: application/json
