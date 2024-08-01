@@ -1,6 +1,10 @@
 # For more info on HTTP files go to https://aka.ms/vs/httpfile
+@hostname=localhost
+@port=6060
+@url=https://{{hostname}}:{{port}}
 
-POST https://localhost:5050/products
+
+POST {{url}}/products
 Content-Type: application/json
 {
   "Name": "New Product B",
@@ -11,20 +15,20 @@ Content-Type: application/json
 }
 
 ### Get Products
-GET https://localhost:5050/products?pageNumber=2&pageSize=2
+GET {{url}}/products?pageNumber=2&pageSize=5
 Content-Type: application/json
 
 ### Get Product By Id
-GET https://localhost:5050/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
+GET {{url}}/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
 Content-Type: application/json
 
 ### Get Product By Category
-GET https://localhost:5050/products/category/c1
+GET {{url}}/products/category/c1
 Content-Type: application/json
 
 
 ### Update Product
-PUT https://localhost:5050/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
+PUT {{url}}/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
 Content-Type: application/json
  {
     "id": "0190ffe5-684c-4f35-9d6b-3c14cc34126d",
@@ -36,5 +40,10 @@ Content-Type: application/json
   }
 
 ### Delete Product
-DELETE https://localhost:5050/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
+DELETE {{url}}/products/0190ffe5-684c-4f35-9d6b-3c14cc34126d
+Content-Type: application/json
+
+
+### Health Check
+GET {{url}}/health
 Content-Type: application/json
