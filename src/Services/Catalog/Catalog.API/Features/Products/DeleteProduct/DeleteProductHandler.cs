@@ -16,9 +16,6 @@ internal class DeleteProductHandler(IDocumentSession session, ILogger<DeleteProd
 {
     public async Task<DeleteProductResult> Handle(DeleteProductCommand command, CancellationToken cancellationToken)
     {
-        logger.LogInformation("DeleteProductHandler.Handler called with {@Command}", command);
-
-
         var product = await session.LoadAsync<Product>(command.Id);
         if (product is null) {
             throw new ProductNotFoundExceptions(command.Id);

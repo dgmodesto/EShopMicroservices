@@ -11,8 +11,6 @@ internal class GetProductByCategoryHandler(IDocumentSession session, ILogger<Get
 {
     public async Task<GetProductByCategoryResult> Handle(GetProductByCategoryQuery query, CancellationToken cancellationToken)
     {
-        logger.LogInformation("GetProductByCategoryHandler.Handle called with {@Query}", query);
-
         var products = await session
                             .Query<Product>()
                             .Where(q => q.Category.Contains(query.Category))
