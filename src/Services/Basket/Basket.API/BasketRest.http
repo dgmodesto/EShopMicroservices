@@ -1,0 +1,8 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+
+@hostname=localhost
+@port=5051
+@url=https://{{hostname}}:{{port}}
+
+GET {{url}}/basket/341898718423c14cc34126d
+Content-Type: application/json
