@@ -35,8 +35,11 @@ Content-Type: application/json
         }
 }
 
-
-
 ### Delete Basket
 DELETE {{url}}/basket/dgmodesto
+Content-Type: application/json
+
+
+### Health Check
+GET {{url}}/health
 Content-Type: application/json
