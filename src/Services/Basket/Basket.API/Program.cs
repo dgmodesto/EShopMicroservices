@@ -21,6 +21,8 @@ builder.Services.AddMarten(opts =>
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
+builder.Services.AddScoped<IBasketRepository, BasketRepository>();
+
 var app = builder.Build();
 
 //Configure the HTTP request pipeline

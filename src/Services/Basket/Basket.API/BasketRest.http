@@ -38,5 +38,5 @@ Content-Type: application/json
 
 
 ### Delete Basket
-DELETE {{url}}/basket/341898718423c14cc34126d
+DELETE {{url}}/basket/dgmodesto
 Content-Type: application/json
