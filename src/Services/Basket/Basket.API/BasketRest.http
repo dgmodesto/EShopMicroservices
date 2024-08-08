@@ -1,7 +1,7 @@
 # For more info on HTTP files go to https://aka.ms/vs/httpfile
 
 @hostname=localhost
-@port=5051
+@port=6061
 @url=https://{{hostname}}:{{port}}
 
 # Get basket
