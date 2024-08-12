@@ -1,5 +1,26 @@
-﻿namespace Discount.Grpc.Data;
+﻿using Discount.Grpc.Models;
+using Microsoft.EntityFrameworkCore;
 
-public class DiscountContext
+namespace Discount.Grpc.Data;
+
+public class DiscountContext : DbContext
 {
+    public DbSet<Coupon> Coupons { get; set; } = default!;
+
+    public DiscountContext(DbContextOptions options) 
+        : base(options)
+    {
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Coupon>()
+            .HasData(
+                new Coupon { Id = 1, ProductName = "IPhone X", Description = "IPhone Discount", Amount = 150 },
+                new Coupon { Id = 2, ProductName = "Samsung 10", Description = "IPhon Discount", Amount = 100 }
+            );
+    }
+
+
+
 }
