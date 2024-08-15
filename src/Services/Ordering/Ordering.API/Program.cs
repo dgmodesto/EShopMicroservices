@@ -144,5 +144,54 @@ DDD Types - Strategic and Tactical DDD
         - Provides a gateway to the Aggregate, ensuring that the Aggregate's invariants are enforced and consistency is maintained.
         - Example: In the Order Aggregate, Order itself can be the Aggregate Root. External objects would interact with Order to affect changes within the Aggregate.
 
+Primitive Obsession 
+    - Primitive Obsession is a code smell where primitives (like string, int, Guid) are used for domain concepts, leading to ambiguity and errors.
+    - Using a Guid or string for an orderId, customerId, or productId makes it easy to mix these identifiers up, as they're all of the same type.
+    - How Can we solve << Primitive Obssesion >>
+        - Strongly Typed IDs
+          
+Strongly Typed IDs Pattern 
+    - Creating distinct types for each kind of ID in your domain
+    - This makes your code more expressive and less error-prone
+    - It clarifies which type of ID is expected and prevents accidentally using one type of ID (like a productId) where another (like an orderId) is intended.
+
+Anemic-Domain Model Entity 
+    - Entity have little or no business logic (domain logic)
+    - Essentially data structures with getters and setters
+    - But the business rules and behaviors are typically implemented outside the entity, often in service layers.
+    - public class Order { public List<OrderItem> OrderItems {get; set;}  }
+    - Order Class is anemic because it only contains data and lacks any domain logic or behaviors.
+
+Rich-Domain Model Entity 
+    - Entities encapsulate both data and behavior
+    - This model enriches entities with methods that embody business rules and domain logic.
+    - public classe Order : Aggregate<Guid> {
+        private readonly List<OrderItem> _ordemItems = new();
+        public IReadOnlyLIst<OrderItem> OrderItems => _orderItem.AsReadOnly();
+        public voic AddOrderItem(OrderItem item) { //logic here }
+        public void RemoveOrderItem(OrderItem item) { //logic here }
+    }
+    - Order is a rich domain model as it includes methods AddOrderItem and RemoveOrderItem which encapsulate the business logic for manipulating the order items.
+    - Rich-Domain model for Entities and ValuesObjects
+        - Entities -> Create Static Method
+        - ValueObjects -> Of Static Method
+
+Domain Event in DDD 
+    - Domain Events represent something that happened in the past and the other parts of the same service boundary same domain need to react to these changes.
+    - Domain Event is a business event that ocurrs within the domain model. It often represents a side effect of a domain operation.
+    - Achieve consistency between aggregates in the same domain.
+
+Domain vs Integration Events 
+    - Domain Events 
+        - Published and consumed withing a single domain. Strictly within the boundary of the microservice/domain context.
+        - Indicate something that has happened within the aggregate.
+        - In-process and synchronously, sent using an in-memory message bus. 
+        - Example: OrderPlacedEvent
+    - Integration Events 
+        - Used to communicate state changes or events between contexts or microservices.
+        - Overall system's reaction to certain domain events
+        - Asynchronously, sent with a message broker over a queue.
+        - Example: After handling OrderPlacedEvent, and OrderPlacedIntegrationEvent might be published to a message broker like RabbitMQ, then consumes by other microservices.
+
 
  */
