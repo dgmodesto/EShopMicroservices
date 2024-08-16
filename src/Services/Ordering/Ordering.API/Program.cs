@@ -193,5 +193,28 @@ Domain vs Integration Events
         - Asynchronously, sent with a message broker over a queue.
         - Example: After handling OrderPlacedEvent, and OrderPlacedIntegrationEvent might be published to a message broker like RabbitMQ, then consumes by other microservices.
 
+Entity Framework Core
+    - Entity Framework (EF) Core is a lightweight, extensible, open source and cross-platform data access technology.
+    - EF Core can serve as an object-relational mapper (ORM)
+    - Enables .NET developers to work with a database using .NET objects. 
+    - Eliminates the need for most of the data-access code that typically needs to be written. 
+    - EF Core supports many database engines through the use of "database providers".
+    - Each system has its own database provider, which is shipped as NuGet package.
+    - Relations with Has/With Pattern
+        - RelationsShip with other entities one-to-one, one-to-many, or many-to-many
+        - EF Core handles these relationsships using the Has/With Pattern 
+        - Relationsship can be confiured using HasMany/WithOne methods for one-to-many and HasOne/WithMane for many-to-one relationship.
+        - One-To-Many RelationShip
+            - Order and OrderItem have a one-to-many relationship (an order can have multiple items) configured using EF Core Fluent API as follows:
+                - builder.Entity<Order>().HasMany(o => o.OrderItems).WithOne().HasForeignKey(oi => oi.OrderId);
+            - Each OrderItem references an Order through a foreign key OrderId.
+    - ValueObject Mapping with Complex Type and ComplexProperty 
+        - EF Core 8, "Complex Types" are introduced to better support value objects in DDD.
+        - Complex Types is an object that does not have a primary key and is used to represent a set of properties in an entity. 
+        - Examples of Complex Types (Value Objects)
+            - Address can be a complex type representing the shipping and billing addresses for an order. And configuring Complex Types in OnModelCreating:
+            - builder.Entity<Order>(b => {  b.ComplexProperty(e => e.BillingAddress); b.ComplexProperty(e => e.ShippingAddress);  });
+            - [ComplexType  ] public class Address { //properties here }
+
 
  */
