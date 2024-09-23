@@ -1,6 +1,7 @@
 using Ordering.API;
 using Ordering.Application;
 using Ordering.Infrastructure;
+using Ordering.Infrastructure.Data.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,10 +12,6 @@ var builder = WebApplication.CreateBuilder(args);
  Application - MediatR
  API - Carter, HealthCheckes, ...
 
- builder.Services
-    .AddApplicationServices()
-    .AddInfrastructureServices(builder.Configuration)
-    .AddWebServices();
  */
 
 
@@ -27,11 +24,15 @@ builder.Services
 var app = builder.Build();
 
 // Configure the HTTP requqest Pipeline
+app.UseApiServices();
 
+if(app.Environment.IsDevelopment())
+{
+    await app.InitializeDatabaseAsync();
+}
 
 app.Run();
 
-app.UseApiServices();
 
 
 /*
@@ -180,6 +181,11 @@ Domain Event in DDD
     - Domain Events represent something that happened in the past and the other parts of the same service boundary same domain need to react to these changes.
     - Domain Event is a business event that ocurrs within the domain model. It often represents a side effect of a domain operation.
     - Achieve consistency between aggregates in the same domain.
+    - When an order is laced, an OrderPlaced event might be triggered.
+    - Trigger side effects or notify other parts of the system about changes witin the domain.
+    - How to use Domain Events in DDD?
+        - Encapsulate the event details and dispatch them to interested parties.
+        - Communicate changes within the domain to external handlers which may perform actions based on these events.
 
 Domain vs Integration Events 
     - Domain Events 
@@ -215,6 +221,115 @@ Entity Framework Core
             - Address can be a complex type representing the shipping and billing addresses for an order. And configuring Complex Types in OnModelCreating:
             - builder.Entity<Order>(b => {  b.ComplexProperty(e => e.BillingAddress); b.ComplexProperty(e => e.ShippingAddress);  });
             - [ComplexType  ] public class Address { //properties here }
+    - Interceptors
+        - In EF Core enable the interception, modification, or suppression of EF Core Operations
+        - This includes low-level database operations such as executing a command, as well as higher-level operations, such as calls to SaveChanges.
+        - SaveChanges Interception
+            - The SaveChanges and SaveChangesAsync interception points are used to execute custom logic when saving changes to the database.
+            - These interception points are defined by the ISaveChangesInterceptor interface.
+            - EF Core provides a SaveChangesInterceptor base class with no-op (no operation) method as a convenience.
+            - USe Case: SaveChanges interceptions for Auditing
+                - Interception of SaveChanges can be used to create an independent audit record of chagnes.
+                - This is useful for maintaining a history of who changed an entity ans when.
+                - Before saving changes to the database, you can iterate through the changed entities in the DbContext and log or store the audit information, like timestamp or user identifiers.
+        - Registering Interceptors
+            - How To Register Interceptors?
+                - Interceptors are registered using AddInterceptors when configuring a DbContext instance.
+                - Common approach is usually done in the OnConfiguring method of the DbContext.
+                - Example Code: Registering a SaveChangesInterceptor
+                - public class ExampleContext: BlogsContext {
+                    protected overrid void OnConfiguring(DbContextOptionsBuilder optionsBuilder) 
+                        => optionsBuilder.AddInterceptors(new TaggedQueryCommandInterceptor());
+                  }
+        - Implementing a Custom SaveChangesInterceptor 
+            - Implement a custom interceptor by extending SaveChangesInterceptor or implemeting ISaveChangesInterceptor.
+            - Override methods like SavingChanges and SavedChanges to execute custom logic.
+            - Example Code: Implementing Auditing in an Interceptor 
+            - public class MySaveChangeInterceptor : SaveChangeInterceptor {
+                public override InterceptionResult<int> SavingChanges(DbContextEventData eventData)  {
+                    var context = eventData.Context;
+                    foreach(var entry in context.ChangeTraker.Entries().Where(e => e.State == ... ) 
+                    {
+                        if(entry.Entity is AuditableEntity entity) 
+                        {
+                            if(entry.State == EntityState.Added) 
+                            {
+                                entity.CreatedAt = Datetime.UtcNow;
+                                entity.CreatedBy = "anonymous";  //get current user here
+                            }
+                        }
+                    }
+                }
+              }
 
+Dispatch Domain Eventswith EF Core SaveChangesInterceptor
+    - Steps dispatch Events:
+        - Creawte a SaveChangesInterceptor
+        - Identify and Dispatch Domain Events 
+            - public class DomainEventDispatcherInterceptor : SaveChangesInterceptor
+        - Registering the Interceptor into DependencyInjection class
+    - Best Practice to Dispatch Events:
+        - EF Core SaveChangesInterceptor
+        - [Entity (Domain Events)] <- [Event Dispatcher] -> [Event Consumer]
+
+CQRS - Command Query Responsability Segregation
+    - CQRS design pattern in order to avoid complex queries to get rid of inefficient joins.
+    - Separates read and write operation with separating database.
+    - Commands: changing the state of data into application.
+    - Queries: handling complex join operations and returning a result and don't change the state of data into application.
+    - Large-scaled microservies architectures needs to manage high-volume data requirements.
+    - Single database for services can cause bottlenecks.
+    - Uses both CQRS and Event Sourcing patterns to improve application performance.
+    - CQRS offers to separates read and write data that provide to maximize query performance and scalability
+    - Monolhitic has single database is both working for complex join queries, and also perform CRUD operations.
+    - When application goes more complex, this query and CRUD operations will become un-manageble situation.
+    - Application required some query that needs to join more than 10 table, will lock the database due to latency of query computation.
+    - Performing CRUD operations need to make complex validations and process long business logics, will cause to lock databse operations.
+    - Reading and Writing database has different approaches define different strategy.
+    - <<Separation of concerns>> principles: separate reading database and the writing database with 2 database.
+        - Read database uses No-Sql database with denormalized data.
+        - Write database uses Relational databases with fully normalized and supports strong data consistency.
+
+CQRS - Logical and Physical Implementation
+    - Logical Implementation: 
+        - Splitting Operations, Not Database. Separate read (query) operations from the write (command) operations at the code, but not necessarily at the database level. 
+        - Even though the same database is used, the paths for reading and writing data are distinct.
+    - Physical Implementation 
+        - Separate Database. Splitting the read and write operations not just at the code level but also physically using separate databases.
+        - Introduces data consistency and synchronization problems.
+
+Event Sourcing Pattern
+    - Most applications saves data into database with the current state of the entity. I.e. user change the email address table, email field updated with the latest updated one. Always kow the latst status of the data.
+    - In large-scaled architectures, frequent update database operations can negatively impact databse perform responsiveness, and limits of scalability.
+    - Event Sourcing pattern offers to persit each action that affects to data into Event Store database. And call all these actions as a event.
+    - Instead of saving latest status of data into database, Event Sourcing pattern offers to save all events into database with sequential ordered of data events.
+    - This events database called Event Store.
+    - Instead of overriding the data into table, It create a new record for each change to data, and it becomes sequential list of past events.
+    - Event Store database become the source-of-truth of data.
+    - Sequential event list using generating Materialize Views that represents final state of data to perform queries.
+    - Event Store convert to read database with following the Materialized Views Pattern.
+    - Convert operation can handle by publish/subcriber pattern with publish event with message broker systems.
+    - Event list gives ability to replay events at given certain timestamp.
+    - CQRS pattern is mostly using with the Event Sourcing pattern
+    - Store events into the write database; source-of-truth events database.
+    - Read database of CQRS pattern provides materialized views of the data with denormalized tables.
+    - Materialized views read database consumes events from write database convert them into denormalized views. 
+    - The writing database is never save status of data only events actions are stored.
+    - Store history of data and able to reply any point of time in order to re-generate status of data.
+    - System can increased query performance and scale databases independently;
+
+Eventual Consistency Principle
+    - CQRS with Event Sourcing Pattern leads Eventual consistency.
+    - Eventual Consistency is especially used for systemas prefer high availability to strong consistency.
+    - The systema will become consistent after a certain time.
+    - We called this latency is a Eventual Consistency Principle and offers to be consistent after a certain time.
+    - There are 2 type of "Consistency Level"
+    - Strict Consistency: When we save data, the data should affect and seen immediately for every client.
+    - Eventual Consistency: When we write any data, it will take some time for clients reading the data.
+    - CQRS Design Pattern and Event Sourcing patterns:
+        - When user perform any action into application, this will save actions as a event into event store.
+        - Data will convert to Reading database with following the publish/subscribe patter with using message brokers.
+        - Data will be denormalized into materialized view database for querying from the application.
+    - We call this process is a Eventual Consistency Principle
 
  */

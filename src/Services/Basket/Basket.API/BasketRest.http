@@ -20,7 +20,7 @@ Content-Type: application/json
                 {
                 "Quantity": 2,
                 "Color": "Red",
-                "Price": 500,
+                "Price": 500, 
                 "ProductId": "5334c996-8457-4cf0-815c-ed2b77c4ff61",
                 "ProductName": "IPhone X"
                 },
