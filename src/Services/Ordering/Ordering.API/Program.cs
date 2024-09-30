@@ -332,4 +332,20 @@ Eventual Consistency Principle
         - Data will be denormalized into materialized view database for querying from the application.
     - We call this process is a Eventual Consistency Principle
 
- */
+Mediator Pattern and Pipeline Behaviours
+    - Mediator Pattern: useful in complex or enterprise-level applications where request processing often involves more than just business logic.
+    - Handling a request: might require additional steps like logging, validation, auditing, and applying security checks. These are known as cross-cutting concerns.
+    - MediatR: provides a mediator pipeline where these cross-cutting concerns can be inserted transparently.
+    - Pipeline coordinates the request handling, ensuring that all necessary steps are executed in the rigth order.
+    - In MediatR, pipeline behaviours are used to implement cross-cutting concerns.
+    - Wrap around the request handling, allowing you to execute logic before and after the actual handler is called.
+
+EShop Microservices Pipeline Behaviours
+    - LogBehavior: A behavior that logs details about the handling of a request.
+    - ValidatiorBehavior: A behavior that validates incoming requests before they reach the handler.
+    - Every request processed by MediatR in the application is logged and validate consistently
+    - Using MediatR with the mediator pattern in ASP.NET Core applications provides a structured and clean way to handle complex request processing.
+
+*/
+
+
